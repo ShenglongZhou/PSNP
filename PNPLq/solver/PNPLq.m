@@ -25,7 +25,8 @@ function Out = PNPLq(funcF,n,lambda,q,pars)
 %     Out.obj :   Objective function value at Out.sol 
 %--------------------------------------------------------------------------
 % This code is programmed based on the algorithm proposed in 
-% "S. Zhou, Revisiting Lq(0<=q<1) norm regualrized optimization, 2023."
+% "S. Zhou, X. Xiu, Y. Wang, and D. Peng, 
+%  Revisiting Lq(0<=q<1) norm regualrized optimization, 2023."
 % Send your comments and suggestions to <<< slzhou2021@163.com >>> 
 % Warning: Accuracy may not be guaranteed !!!!! 
 %--------------------------------------------------------------------------
