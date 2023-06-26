@@ -1,4 +1,4 @@
-# PNPL
+# PNPLq
 
 This Matlab solver was created based on the algorithm proposed by
 
