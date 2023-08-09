@@ -72,10 +72,12 @@ end
 for iter = 1:maxit
           
     switch prob
-        case 'CS'; rate = 0.5; i0 = 6;
-        case 'LR'; rate = .25 + .25*(iter>5);
-                   i0   = 15 + 10*(iter>5);
-        otherwise; rate = 0.5; i0 = 15;
+        case 'CS';  rate = 0.5; i0 = 6;
+        case 'LR';  rate = .25 + .25*(iter>5);
+                    i0   = 15 + 10*(iter>5);
+        case 'SVM'; rate = .25 + .25*(iter>5);
+                    i0   = 10 + 10*(iter>5);           
+        otherwise;  rate = 0.5; i0 = 25;
     end
    
     alpha       = alpha0; 
