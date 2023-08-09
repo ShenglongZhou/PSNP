@@ -51,8 +51,8 @@ T        = find(x~=0);
 sT       = nnz(T);
 w        = x(T);
 if sT
-    Obj  = Funcs(x,T,'f');
-    grad = Funcs(x,T,'g'); 
+    Obj  = Funcs(w,T,'f');
+    grad = Funcs(w,T,'g'); 
 else
     Obj  = Funcs(x,[],'f');
     grad = Funcs(x,[],'g'); 
@@ -75,7 +75,7 @@ for iter = 1:maxit
         case 'CS'; rate = 0.5; i0 = 6;
         case 'LR'; rate = .25 + .25*(iter>5);
                    i0   = 15 + 10*(iter>5);
-        otherwise; rate = 0.5; i0 = 25;
+        otherwise; rate = 0.5; i0 = 15;
     end
    
     alpha       = alpha0; 
