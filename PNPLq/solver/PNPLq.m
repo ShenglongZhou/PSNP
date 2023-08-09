@@ -110,7 +110,7 @@ for iter = 1:maxit
        ident = nnz(T-Told)==0;   
     end     
  
-    if  newton && sT>0 &&  (sT <0.5*n || ident ==1) %&& ident
+    if  newton && sT>0 &&  (sT <0.5*n || ident ==1) && (i~=i0 || iter>=5)
         [grad,Hess] = Funcs(w,T,'gh'); 
         gradT       = grad(T);
         if q        > 0
