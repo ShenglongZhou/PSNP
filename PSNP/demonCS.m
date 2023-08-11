@@ -5,7 +5,7 @@ n     = 10000;
 m     = ceil(0.25*n);
 s     = ceil(0.025*n);     
 
-nf      = 0.025;
+nf      = 0.00;
 T       = randperm(n,s);  
 xopt    = zeros(n,1);  
 xopt(T) = (0.5+1*rand(s,1)).*(2*randi([0,1],[s,1])-1);  
@@ -14,7 +14,7 @@ data.b  = data.A(:,T)*xopt(T)+ nf*randn(m,1);
 
 pars.prob  = 'CS';
 q0         = [0 1/2 2/3];
-lam        = @(q)0.02*(1+3*q)*norm(data.b'*data.A,'inf');
+lam        = @(q)0.02*(1+q)*norm(data.b'*data.A,'inf');
 for i      = 1:length(q0) 
     lambda = lam(q0(i));
     func   = @(x,T,key)funCS(x,T,key,data);
