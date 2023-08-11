@@ -1,25 +1,28 @@
 % demon sparse logistic regression problems 
-clc; close all; clear all; warning off
-addpath(genpath(pwd));
+clc; close all; warning off; addpath(genpath(pwd));
  
-dat    = load('arcene.mat'); 
-class  = load('arceneclass.mat');  
+dat     = load('arcene.mat'); 
+class   = load('arceneclass.mat');  
+b       = class.y;
+b( b   ~= 1) = 0;
+[m,n]   = size(dat.X);   
+data.A  = normalization(dat.X,2);
+data.b  = b;
+data.At = data.A';
 
-b      = class.y;
-b( b  ~= 1) = 0;
-[m,n]  = size(dat.X);  
-ntp    = 2; 
-data.A = normalization(dat.X,ntp);
-data.b = b;
+pars.prob  = 'LR';
+q0         = [0 1/2 2/3];
+lam        = @(q)1e-3*(1+6*q)*norm(data.b'*data.A,'inf')/m;
+for i      = 1:length(q0) 
+    lambda = lam(q0(i));
+    func   = @(xT,T,key)funLR(xT,T,key,lambda,data);
+    out{i} = PSNP(func,n,lambda,q0(i),pars);   
+end
 
-pars.prob   ='LR';
-q           = 0; 
-lambda      = 1e-3*norm(data.b'*data.A,'inf')/m;
-func        = @(xT,T,key)funLR(xT,T,key,2*lambda,data);
-out         = PSNP(func,n,lambda,q,pars);
-
-acc = @(v)( mean(abs(data.b - sign( max( data.A(:,v~=0)*v(v~=0),0 ) )) ) );
-fprintf(' Sample size:           %d x %d\n', m,n);
-fprintf(' Logistic Loss:         %5.2e\n', out.obj);
-fprintf(' Classification error:  %5.3f%%\n', acc(out.sol)*100);
-fprintf(' CPU time:              %.3fsec\n',  out.time);
+acc = @(v)( 1-nnz(data.b - sign( max( data.A(:,v~=0)*v(v~=0),0 ) ))/m );
+fprintf('   q     LogistLoss   Accuracy   CPUtime\n');
+fprintf(' ---------------------------------------\n');
+for i  = 1:length(q0)
+    fprintf('%6.3f    %5.2e    %5.2f%%     %5.3f    \n', ...
+    q0(i),out{i}.obj,acc(out{i}.sol)*100,out{i}.time);
+end
