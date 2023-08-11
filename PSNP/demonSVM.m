@@ -1,25 +1,29 @@
-% demon sparse logistic regression problems 
-clc; close all; clear all; warning off
-addpath(genpath(pwd));
- 
-dat    = load('arcene.mat'); 
-class  = load('arceneclass.mat');  
+% demon sparse support vector machine problems 
+clc; close all; warning off; addpath(genpath(pwd));
 
-b      = class.y;
-b( b  ~= 1) = -1;
-data.A = [normalization(dat.X,2)  ones(size(b))];
-data.b = b;
-[m,n]  = size(data.A); 
-    
-pars.prob  ='SVM';
-pars.tol   = 1e-5*log2(m*n);
-q          = 0; 
-lambda     = 3e-4*log2(n/m)*norm(data.b'*data.A,'inf')/m;
-func       = @(xT,T,key)funSVM(xT,T,key,lambda,data);
-out        = PSNP(func,n,lambda,q,pars);
+dat     = load('arcene.mat'); 
+class   = load('arceneclass.mat');  
+b       = class.y;
+b( b   ~= 1) = -1;
+data.A  = [normalization(dat.X,2)  ones(size(b))];
+data.b  = b;
+[m,n]   = size(data.A); 
+data.At = data.A';
+ 
+pars.prob  = 'SVM';
+pars.tol   = 1e-6*log2(m*n);
+q0         = [0 1/2 2/3];
+lam        = @(q)3e-4*(1+6*q)*log2(n/m)*norm(data.b'*data.A,'inf')/m;
+for i      = 1:length(q0) 
+    lambda = lam(q0(i));
+    func   = @(xT,T,key)funSVM(xT,T,key,lambda,data);
+    out{i} = PSNP(func,n,lambda,q0(i),pars);   
+end
 
 acc = @(v)( 1-nnz(data.b - sign( data.A(:,v~=0)*v(v~=0) ))/m );
-fprintf(' Sample size:           %d x %d\n', m,n);
-fprintf(' Logistic Loss:         %5.2e\n', out.obj);
-fprintf(' Classification error:  %5.3f%%\n', acc(out.sol)*100);
-fprintf(' CPU time:              %.3fsec\n',  out.time);
+fprintf('   q     Objective   Accuracy   CPUtime\n');
+fprintf(' ---------------------------------------\n');
+for i  = 1:length(q0)
+    fprintf('%6.3f    %5.2e    %5.2f%%     %5.3f    \n', ...
+    q0(i),out{i}.obj,acc(out{i}.sol)*100,out{i}.time);
+end
