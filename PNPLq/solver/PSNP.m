@@ -1,6 +1,6 @@
-function Out = PNPLq(funcF,n,lambda,q,pars)
+function Out = PSNP(funcF,n,lambda,q,pars)
 
-% This code aims at solving the sparsity constrained optimization with form
+% This code aims at solving the Lq norm regularized optimization with form
 %
 %         min_{x\in R^n} F(x) := f(x) + \lambda \|x\|_q^q,
 %
@@ -10,10 +10,10 @@ function Out = PNPLq(funcF,n,lambda,q,pars)
 %     func:  A function handle defines (objective,gradient,sub-Hessain) of F (required)
 %     n   :  Dimension of the solution x                                     (required)
 %     lambda : Penalty parameter                                             (required) 
-%     q      : one of {0 1/2, 2/3}                                           (required)
+%     q      : one of {0, 1/2, 2/3}                                           (required)
 %     pars:  Parameters are all OPTIONAL
 %            pars.x0      --  Starting point of x,   pars.x0=zeros(n,1) (default)
-%            pars.prob    --  ='CS' or 'LR'  
+%            pars.prob    --  ='CS', 'SVM, or 'LR'  
 %            pars.show    --  Display results or not for each iteration (default, 1)
 %            pars.maxit   --  Maximum number of iterations, (default,2000) 
 %            pars.tol     --  Tolerance of the halting condition, (default,1e-6)
@@ -60,23 +60,24 @@ end
  
 sT       = nnz(T);
 Error    = zeros(maxit,1); 
-if  show
-    fprintf(' Start to run the solver -- PNPLq with q = %5.4f  \n', q);
-    fprintf(' ------------------------------------------------------------------\n');
-    fprintf(' Iter    ErrGrad      ErrProx     Objective     Sparsity     Time \n'); 
-    fprintf(' ------------------------------------------------------------------\n');
+if  show 
+    fprintf(' Start to run the solver -- PSNP \n');
+    fprintf(' ----------------------------------------------------------------------------\n');
+    fprintf(' Iter      ErrGrad        ErrProx        Objective      Sparsity     Time(sec) \n'); 
+    fprintf(' ----------------------------------------------------------------------------\n');
+    fprintf('%4d       %5.2e      %8.2e       %8.5e    %7d      %8.3f\n',...
+                0, norm(grad,'inf'), 1, Obj, sT, toc(t0)); 
 end
-
 
 % The main body
 for iter = 1:maxit
           
     switch prob
         case 'CS';  rate = 0.5; i0 = 6;
+        case 'SVM'; rate = 0.1 + 0.1*(iter>5);
+                    i0   = 5.0 + 5.0*(iter>5); 
         case 'LR';  rate = .25 + .25*(iter>5);
-                    i0   = 15 + 10*(iter>5);
-        case 'SVM'; rate = .25 + .25*(iter>5);
-                    i0   = 10 + 10*(iter>5);           
+                    i0   =  15 + 10* (iter>5);       
         otherwise;  rate = 0.5; i0 = 25;
     end
    
@@ -155,26 +156,37 @@ for iter = 1:maxit
     if q        > 0
         gradT   = gradT + lamq*GQnorm(w,absw);  
     end
-    if isempty(T) 
+    if isempty(T) || (sT==1 && isequal(prob,'SVM'))
         ErrGradT = 1e10; 
         lambda   = lambda/1.5; 
         lamq     = lambda*q;
         lamq1    = lamq*q1;
+        if  isequal(prob,'SVM')
+            x    = zeros(n,1);
+            Obj  = Funcs(w,[],'f');
+            grad = Funcs(w,[],'g');
+        end
     else
         ErrGradT = norm(gradT,'inf'); 
     end
     ErrObj      = abs(Obj-Objold)/(1+abs(Obj));    
     Error(iter) = ErrGradT ;
-    if  show 
-        fprintf('%4d     %5.2e    %5.2e     %9.6f      %4d     %6.3fsec\n',...
-                iter,   ErrGradT, ErrObj, Obj, nnz(T), toc(t0)); 
+    if  show  && mod(iter,10+90*(iter>100))==0
+        fprintf('%4d       %5.2e      %8.2e       %8.5e    %7d      %8.3f\n',...
+                iter,   ErrGradT, ErrObj, Obj, sT, toc(t0)); 
     end
              
     % Stopping criteria
-     if  ident && max(ErrGradT,ErrObj) <tol; break;  end
+     if  ident && max(ErrGradT,ErrObj) <tol
+         if  show  && mod(iter,10+90*(iter>100))~=0
+                fprintf('%4d       %5.2e      %8.2e       %8.5e    %7d      %8.3f\n',...
+                iter,   ErrGradT, ErrObj, Obj, sT, toc(t0)); 
+         end
+         break;  
+     end
 end
 
-fprintf(' ------------------------------------------------------------------\n');
+fprintf(' ----------------------------------------------------------------------------\n');
 Out.time    = toc(t0);
 Out.iter    = iter;
 Out.sol     = x;
@@ -187,7 +199,7 @@ function [sig1,sig2,q1,q2,lamq,lamq1,alpha0,cg_tol,cg_it,x0,tol,...
 
 if isfield(pars,'x0');     x0     = pars.x0;     else; x0 = zeros(n,1); end 
 if isfield(pars,'tol');    tol    = pars.tol;    else; tol    = 1e-6;   end  
-if isfield(pars,'maxit');  maxit  = pars.maxit;  else; maxit  = 5e3;    end
+if isfield(pars,'maxit');  maxit  = pars.maxit;  else; maxit  = 1e4;    end
 if isfield(pars,'newton'); newton = pars.newton; else; newton = 1;      end 
 if isfield(pars,'show');   show   = pars.show;   else; show   = 1;      end 
 if isfield(pars,'prob');   prob   = pars.prob;   else; prob   = 'None'; end 
@@ -203,9 +215,12 @@ switch prob
     case 'CS';   alpha0 = 1-q/2;
                  cg_tol = 1e-8; 
                  cg_it  = 10;
-    case 'LR';   alpha0 = max(1e4,10*sqrt(n));
+    case 'SVM';  alpha0 = 20;
                  cg_tol = 1e-6; 
                  cg_it  = 5;
+   case 'LR';    alpha0 = max(1e4,10*sqrt(n));
+                 cg_tol = 1e-6; 
+                 cg_it  = 5;             
     otherwise;   alpha0 = 1;
                  cg_tol = 1e-8; 
                  cg_it  = 10;
