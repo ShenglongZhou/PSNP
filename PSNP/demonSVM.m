@@ -12,7 +12,7 @@ data.b = b;
 [m,n]  = size(data.A); 
     
 pars.prob  ='SVM';
-pars.tol   = 1e-8*log2(m*n);
+pars.tol   = 1e-5*log2(m*n);
 q          = 0; 
 lambda     = 3e-4*log2(n/m)*norm(data.b'*data.A,'inf')/m;
 func       = @(xT,T,key)funSVM(xT,T,key,lambda,data);
