@@ -61,7 +61,7 @@ end
 sT       = nnz(T);
 Error    = zeros(maxit,1); 
 if  show 
-    fprintf(' Start to run the solver -- PSNP \n');
+    fprintf(' Start to run the solver -- PSNP with q = %5.3f \n',q);
     fprintf(' ----------------------------------------------------------------------------\n');
     fprintf(' Iter      ErrGrad        ErrProx        Objective      Sparsity     Time(sec) \n'); 
     fprintf(' ----------------------------------------------------------------------------\n');
