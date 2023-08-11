@@ -1,6 +1,5 @@
 % demon  compressed sensing problems 
- clc; close all; clear all; warning off
- addpath(genpath(pwd));
+clc; close all; warning off; addpath(genpath(pwd));
 
 n     = 10000; 
 m     = ceil(0.25*n);
@@ -13,14 +12,18 @@ xopt(T) = (0.5+1*rand(s,1)).*(2*randi([0,1],[s,1])-1);
 data.A  = normalization(randn(m,n), 3); 
 data.b  = data.A(:,T)*xopt(T)+ nf*randn(m,1);  
 
-pars.prob = 'CS';
-q         = 0;
-lambda    = 0.02*norm(data.b'*data.A,'inf'); 
+pars.prob  = 'CS';
+q0         = [0 1/2 2/3];
+lam        = @(q)0.02*(1+3*q)*norm(data.b'*data.A,'inf');
+for i      = 1:length(q0) 
+    lambda = lam(q0(i));
+    func   = @(x,T,key)funCS(x,T,key,data);
+    out{i} = PSNP(func,n,lambda,q0(i),pars);   
+end
 
-func      = @(x,T,key)funCS(x,T,key,data);
-out       = PSNP(func,n,lambda,q,pars); 
-
-fprintf(' Sample size:           %d x %d\n', m,n);
-fprintf(' Objective:             %5.2e\n',   out.obj); 
-fprintf(' Recovery accuracy:     %5.2e\n',   norm(out.sol-xopt)/norm(xopt)); 
-fprintf(' CPU time:              %.3fsec\n',  out.time);
+fprintf('   q     Objective   Accuracy   CPUtime\n');
+fprintf(' --------------------------------------\n');
+for i      = 1:length(q0)
+    fprintf('%6.3f   %5.2e    %5.2e    %.3f    \n', ...
+    q0(i),out{i}.obj,norm(out{i}.sol-xopt)/norm(xopt),out{i}.time);
+end
