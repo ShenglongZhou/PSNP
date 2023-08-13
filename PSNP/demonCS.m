@@ -21,9 +21,9 @@ for i      = 1:length(q0)
     out{i} = PSNP(func,n,lambda,q0(i),pars);   
 end
 
-fprintf('   q     Objective   Accuracy   CPUtime\n');
-fprintf(' --------------------------------------\n');
-for i      = 1:length(q0)
-    fprintf('%6.3f   %5.2e    %5.2e    %.3f    \n', ...
-    q0(i),out{i}.obj,norm(out{i}.sol-xopt)/norm(xopt),out{i}.time);
+fprintf('   q       Objective     Accuracy     Time(sec)\n');
+fprintf(' ---------------------------------------------\n');
+for i      = 1:length(q0) 
+    fprintf('%6.3f     %5.2e      %5.2e     %7.3f    \n', ...
+    q0(i),out{i}.obj,  norm(out{i}.sol-xopt)/norm(xopt),out{i}.time);
 end
