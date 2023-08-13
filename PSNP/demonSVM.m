@@ -11,7 +11,7 @@ data.b  = b;
 data.At = data.A';
  
 pars.prob  = 'SVM';
-pars.tol   = 1e-6*log2(m*n);
+pars.tol   = 1e-5*log2(m*n);
 q0         = [0 1/2 2/3];
 lam        = @(q)3e-4*(1+6*q)*log2(n/m)*norm(data.b'*data.A,'inf')/m;
 for i      = 1:length(q0) 
