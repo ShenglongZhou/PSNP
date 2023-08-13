@@ -21,9 +21,9 @@ for i      = 1:length(q0)
 end
 
 acc = @(v)( 1-nnz(data.b - sign( data.A(:,v~=0)*v(v~=0) ))/m );
-fprintf('   q     Objective   Accuracy   CPUtime\n');
-fprintf(' ---------------------------------------\n');
+fprintf('   q      Objective     Accuracy     Time(sec)\n');
+fprintf(' ---------------------------------------------\n');
 for i  = 1:length(q0)
-    fprintf('%6.3f    %5.2e    %5.2f%%     %5.3f    \n', ...
+    fprintf('%6.3f     %5.2e      %5.2f%%      %7.3f    \n', ...
     q0(i),out{i}.obj,acc(out{i}.sol)*100,out{i}.time);
 end
