@@ -13,6 +13,7 @@ data.At = data.A';
 pars.prob  = 'LR';
 q0         = [0 1/2 2/3];
 lam        = @(q)1e-3*(1+6*q)*norm(data.b'*data.A,'inf')/m;
+out        = cell(length(q0),1);
 for i      = 1:length(q0) 
     lambda = lam(q0(i));
     func   = @(xT,T,key)funLR(xT,T,key,lambda,data);
