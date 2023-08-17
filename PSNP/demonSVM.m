@@ -14,6 +14,7 @@ pars.prob  = 'SVM';
 pars.tol   = 1e-5*log2(m*n);
 q0         = [0 1/2 2/3];
 lam        = @(q)3e-4*(1+6*q)*log2(n/m)*norm(data.b'*data.A,'inf')/m;
+out        = cell(length(q0),1);
 for i      = 1:length(q0) 
     lambda = lam(q0(i));
     func   = @(xT,T,key)funSVM(xT,T,key,lambda,data);
