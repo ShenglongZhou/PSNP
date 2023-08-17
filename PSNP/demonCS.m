@@ -15,6 +15,7 @@ data.b  = data.A(:,T)*xopt(T)+ nf*randn(m,1);
 pars.prob  = 'CS';
 q0         = [0 1/2 2/3];
 lam        = @(q)0.02*(1+q)*norm(data.b'*data.A,'inf');
+out        = cell(length(q0),1);
 for i      = 1:length(q0) 
     lambda = lam(q0(i));
     func   = @(x,T,key)funCS(x,T,key,data);
