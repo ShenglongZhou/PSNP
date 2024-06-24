@@ -47,6 +47,7 @@ Qnorm    = @(absvar)sum(absvar.^q);
 GQnorm   = @(var,absvar)(sign(var).*absvar.^q1); 
 HQnorm   = @(absvar)(absvar.^q2); 
 Count    = @(it)((it<=10)+10*(it>10)+90*(it>100));
+Error    = zeros(maxit,1);
 x        = x0; 
 T        = find(x~=0); 
 sT       = nnz(T);
@@ -61,8 +62,6 @@ else
     grad = Funcs(x,[],'g'); 
 end
  
-sT       = nnz(T);
-Error    = zeros(maxit,1); 
 if  show 
     if  cond 
         fprintf(' \n Start to run the solver -- PCSNP with q = %5.3f \n',q);
