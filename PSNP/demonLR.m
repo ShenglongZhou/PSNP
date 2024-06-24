@@ -1,5 +1,6 @@
 % demon sparse logistic regression problems 
-clc; close all; warning off; addpath(genpath(pwd));
+clc; close all; clear all; warning off; 
+addpath(genpath(pwd));
  
 dat     = load('arcene.mat'); 
 class   = load('arceneclass.mat');  
@@ -11,6 +12,7 @@ data.b  = b;
 data.At = data.A';
 
 pars.prob  = 'LR';
+pars.cond  = 0;
 q0         = [0 1/2 2/3];
 lam        = @(q)1e-3*(1+6*q)*norm(data.b'*data.A,'inf')/m;
 out        = cell(length(q0),1);
