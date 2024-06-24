@@ -1,30 +1,21 @@
-% demon  compressed sensing problems 
-clc; close all; warning off; addpath(genpath(pwd));
+% demon  compressed sensing problems  
+clc; close all; clear all; warning off; 
+addpath(genpath(pwd));
 
-n     = 10000; 
+n     = 2000; 
 m     = ceil(0.25*n);
-s     = ceil(0.025*n);     
+s     = ceil(0.05*n);     
 
-nf      = 0.00;
 T       = randperm(n,s);  
 xopt    = zeros(n,1);  
 xopt(T) = (0.5+1*rand(s,1)).*(2*randi([0,1],[s,1])-1);  
 data.A  = normalization(randn(m,n), 3); 
-data.b  = data.A(:,T)*xopt(T)+ nf*randn(m,1);  
+data.b  = data.A(:,T)*xopt(T)+ 0.00*randn(m,1);  
 
-pars.prob  = 'CS';
-q0         = [0 1/2 2/3];
-lam        = @(q)0.02*(1+q)*norm(data.b'*data.A,'inf');
-out        = cell(length(q0),1);
-for i      = 1:length(q0) 
-    lambda = lam(q0(i));
-    func   = @(x,T,key)funCS(x,T,key,data);
-    out{i} = PSNP(func,n,lambda,q0(i),pars);   
-end
-
-fprintf('   q       Objective     Accuracy     Time(sec)\n');
-fprintf(' ---------------------------------------------\n');
-for i      = 1:length(q0) 
-    fprintf('%6.3f     %5.2e      %5.2e     %7.3f    \n', ...
-    q0(i),out{i}.obj,  norm(out{i}.sol-xopt)/norm(xopt),out{i}.time);
-end
+pars.prob  = 'CS';  
+pars.cond  = 0;   
+q          = 0;
+lam        = 0.025*norm(data.b'*data.A,'inf');
+func       = @(x,T,key)funCS(x,T,key,data);
+out        = PSNP(func,n,lam,q,pars);  
+recoverShow(xopt,out.sol,[900,500,500,250],1)
