@@ -158,7 +158,7 @@ for iter = 1:maxit
     if q        > 0
         gradT   = gradT + lamq*GQnorm(w,absw);  
     end
-    if isempty(T) || (sT==1 && isequal(prob,'SVM'))
+    if  iter>1 && (isempty(T) || (sT==1 && isequal(prob,'SVM')))
         ErrGradT = 1e10; 
         lambda   = lambda/1.5; 
         lamq     = lambda*q;
