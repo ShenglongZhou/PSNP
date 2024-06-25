@@ -9,7 +9,6 @@ b( b   ~= 1) = 0;
 [m,n]   = size(dat.X);   
 data.A  = normalization(dat.X,2);
 data.b  = b;
-data.At = data.A';
 
 pars.prob  = 'LR';
 pars.cond  = 0;
