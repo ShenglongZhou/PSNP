@@ -127,7 +127,7 @@ for iter = 1:maxit
             end
         end
         if  isa(Hess, 'function_handle')    
-            if mod(iter,10)==0  
+            if  iter   > 10  
                 cg_tol = max(cg_tol/10,1e-15*sT);
                 cg_it  = min(cg_it+5,25);
             end    
@@ -231,8 +231,8 @@ switch prob
                  rate   = 0.5; 
                  i0     = 25;
    case 'LR';    alpha0 = max(1e4,10*sqrt(n));
-                 cg_tol = 1e-6; 
-                 cg_it  = 5; 
+                 cg_tol = 1e-8; 
+                 cg_it  = 10; 
                  rate   = 0.5; 
                  i0     = 25;
     otherwise;   alpha0 = 1;
